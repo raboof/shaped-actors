@@ -20,6 +20,7 @@ trait Shaped[L <: HList] { self: Actor =>
   import Shaped._
 
   implicit val askTimeout: Timeout = 1 second
+  val shapedSelf = ShapedRef.wrap(this)
 
   trait PfConverter[L <: HList] extends DepFn1[L] with Serializable {
     type Out = PartialFunction[Any, Unit]

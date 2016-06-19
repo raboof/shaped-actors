@@ -1,6 +1,6 @@
 package akkashaped
 
-import scala.concurrent.Future
+import scala.concurrent.{ Future, ExecutionContext }
 import scala.annotation.implicitNotFound
 
 import shapeless._
@@ -19,11 +19,23 @@ class ShapedRef[L <: HList](ref: ActorRef) {
     askable.ask(in).asInstanceOf[O]
   }
 
+  def retryAfter[I, O](in: I, future: Future[_])(implicit timeout: Timeout, sender: ActorRef, performer: Performer[L, I, O], ec: ExecutionContext): O = {
+    future.flatMap { value =>
+      ref ! value
+      val askable: AskableActorRef = ref;
+      askable.ask(in).asInstanceOf[Future[_]]
+    }.asInstanceOf[O]
+  }
+
 }
 
 object ShapedRef {
+  /** Start a new actor of a given shape */
   def actorOf[T <: HList](creator: => Actor with Shaped[T])(implicit factory: ActorRefFactory): ShapedRef[T] =
     new ShapedRef(factory.actorOf(Props(creator)))
+
+  /** Wrap an existing shaped actor */
+  def wrap[T <: HList](actor: Actor with Shaped[T]): ShapedRef[T] = new ShapedRef(actor.self)
 
   @implicitNotFound("Implicit not found: Performer[${L}, ${I}, ${O}]. You requested an element of type ${I} => ${O}, but there is none in the HList ${L}.")
   trait Performer[L <: HList, I, O] extends DepFn2[L, I] with Serializable {
