@@ -1,4 +1,4 @@
-package akkashaped
+package helloworld
 
 import scala.language.postfixOps
 import scala.concurrent.{ Future, Await }
@@ -9,6 +9,8 @@ import org.scalatest._
 import akka.actor.{ ActorSystem, Props }
 import akka.testkit.{ ImplicitSender, TestKit }
 import akka.util.Timeout
+
+import akkashaped._
 
 class HelloWorldSpec extends TestKit(ActorSystem("MySpec"))
     with WordSpecLike
