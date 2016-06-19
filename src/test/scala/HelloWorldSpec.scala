@@ -21,7 +21,7 @@ class HelloWorldSpec extends TestKit(ActorSystem("MySpec"))
     "type-safely greet us" in {
       val actor = ShapedRef.actorOf(new HelloWorld)
 
-      val response: Future[HelloWorld.Greeted] = actor.ask[HelloWorld.Greet, HelloWorld.Greeted](HelloWorld.Greet("Peter"))
+      val response: Future[HelloWorld.Greeted] = actor.ask(HelloWorld.Greet("Peter"))
       Await.result(response, 1 second) should be(HelloWorld.Greeted("Peter"))
     }
   }

@@ -2,7 +2,6 @@ package akkashaped
 
 import scala.concurrent.Future
 import scala.annotation.implicitNotFound
-import scala.reflect.ClassTag
 
 import shapeless._
 import shapeless.HList._
@@ -15,9 +14,9 @@ import akka.util.Timeout
 class ShapedRef[L <: HList](ref: ActorRef) {
   import ShapedRef._
 
-  def ask[I, O](in: I)(implicit timeout: Timeout, sender: ActorRef, performer: Performer[L, I, Future[O]], tag: ClassTag[O]): Future[O] = {
+  def ask[I, O](in: I)(implicit timeout: Timeout, sender: ActorRef, performer: Performer[L, I, O]): O = {
     val askable: AskableActorRef = ref;
-    askable.ask(in).mapTo[O]
+    askable.ask(in).asInstanceOf[O]
   }
 
 }
