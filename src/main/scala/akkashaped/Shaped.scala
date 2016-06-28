@@ -3,6 +3,7 @@ package akkashaped
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.reflect.ClassTag
+import scala.language.implicitConversions
 import scala.annotation.implicitNotFound
 
 import shapeless._
@@ -19,7 +20,7 @@ object Shaped {
 trait Shaped[L <: HList] { self: Actor =>
   import Shaped._
 
-  implicit val askTimeout: Timeout = 1 second
+  implicit val askTimeout: Timeout = 1.second
   val shapedSelf = ShapedRef.wrap(this)
 
   trait PfConverter[L <: HList] extends DepFn1[L] with Serializable {
@@ -39,10 +40,6 @@ trait Shaped[L <: HList] { self: Actor =>
           }
           pf.orElse(tailConv(l.tail))
         }
-      }
-    implicit val emptyPfO: PfConverter[HNil.type] =
-      new PfConverter[HNil.type] {
-        def apply(n: HNil.type) = Map.empty[Any, Unit]
       }
     implicit val emptyPfC: PfConverter[HNil] =
       new PfConverter[HNil] {
