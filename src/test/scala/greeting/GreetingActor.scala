@@ -10,7 +10,10 @@ import akkashaped._
 
 /**
  * Adaptation of on of the examples in http://doc.akka.io/docs/akka/current/scala/actors.html,
- * demonstrating an actor that can receive multiple kinds of messages
+ * demonstrating an actor that can receive multiple kinds of messages.
+ *
+ * By sending these messages through `ShapedRef.tell`, the type system will check that you're
+ * sending messages actually part of this actors' shape.
  */
 object GreetingActor {
   case class Greeting(from: String)
