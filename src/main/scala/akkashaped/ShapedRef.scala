@@ -19,6 +19,8 @@ class ShapedRef[L <: HList](ref: ActorRef) {
     askable.ask(in).asInstanceOf[O]
   }
 
+  def tell[I](in: I)(implicit sender: ActorRef, performer: Performer[L, I, Unit]): Unit = ref ! in
+
   def retryAfter[I, O](in: I, future: Future[_])(implicit timeout: Timeout, sender: ActorRef, performer: Performer[L, I, O], ec: ExecutionContext): O = {
     future.flatMap { value =>
       ref ! value

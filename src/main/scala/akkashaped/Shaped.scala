@@ -41,6 +41,17 @@ trait Shaped[L <: HList] { self: Actor =>
           pf.orElse(tailConv(l.tail))
         }
       }
+
+    implicit def pfConvWithoutResult[H1, T <: HList](implicit tailConv: PfConverter[T], tag: ClassTag[H1]): PfConverter[(H1 => Unit) :: T] =
+      new PfConverter[(H1 => Unit) :: T] {
+        def apply(l: (H1 => Unit) :: T): PartialFunction[Any, Unit] = {
+          val pf: PartialFunction[Any, Unit] = {
+            case i: H1 => l.head(i)
+          }
+          pf.orElse(tailConv(l.tail))
+        }
+      }
+
     implicit val emptyPfC: PfConverter[HNil] =
       new PfConverter[HNil] {
         def apply(n: HNil) = Map.empty[Any, Unit]
