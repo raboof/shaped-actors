@@ -34,18 +34,21 @@ class Initializing extends Actor with Shaped[Initializing.Shape] {
 
   override def receive = uninitialized
 
+  val becomeInintializedWhenTokenGenerated: Receive = {
+    case TokenProvider.TokenGenerated(token) =>
+      become(initialized(token))
+  }
+
+  val triggerGeneratingToken: Receive =
+    ((command: PerformTask) => {
+      shapedSelf.retryAfter(
+        command,
+        tokenProvider.ask(TokenProvider.GenerateToken)
+      )
+    }) :: HNil
+
   val uninitialized: Receive =
-    convertToPf(
-      ((command: PerformTask) => {
-        shapedSelf.retryAfter(
-          command,
-          tokenProvider.ask(TokenProvider.GenerateToken)
-        )
-      }) :: HNil
-    ) orElse {
-        case TokenProvider.TokenGenerated(token) =>
-          become(initialized(token))
-      }
+    becomeInintializedWhenTokenGenerated orElse triggerGeneratingToken
 
   def initialized(token: String) =
     ((command: PerformTask) => {
