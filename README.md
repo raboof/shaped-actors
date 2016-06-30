@@ -122,8 +122,8 @@ override def receive =
     log.info("Someone said goodbye to me.")) :: HNil
 ```
 
-* View the actor code [src/test/scala/greeting/GreetingActor.scala](here)
-* View the consumer code [src/test/scala/greeting/GreetingActorSpec.scala](here)
+* View the actor code [here](src/test/scala/greeting/GreetingActor.scala)
+* View the consumer code [here](src/test/scala/greeting/GreetingActorSpec.scala)
 
 ### Hello, World
 
@@ -133,8 +133,8 @@ actually responds to messages, using the 'ask' pattern.
 As an example I've taken the 'Hello World' example of the official (but experimental)
 Akka 'Typed Actors'.
 
-* View the actor code [src/test/scala/helloworld/HelloWorld.scala](here)
-* View the consumer code [src/test/scala/helloworld/HelloWorldSpec.scala](here)
+* View the actor code [here](src/test/scala/helloworld/HelloWorld.scala)
+* View the consumer code [here](src/test/scala/helloworld/HelloWorldSpec.scala)
 
 To contrast with 'Typed Actors', shapes have a couple of nice properties:
 
@@ -171,8 +171,8 @@ after the 'ask' to the `TokenProvider` has completed.
 This is not entirely fool-proof, of course, but seems to reflect the intent behind the code more
 clearly than without types.
 
-* View the actor code [src/test/scala/initializing/Initializing.scala](here) (and the token provider [src/test/scala/initializing/TokenProvider.scala](here))
-* View the consumer code [src/test/scala/initializing/InitializingSpec.scala](here)
+* View the actor code [here](src/test/scala/initializing/Initializing.scala) (and the token provider [here](src/test/scala/initializing/TokenProvider.scala))
+* View the consumer code [here](src/test/scala/initializing/InitializingSpec.scala)
 
 ## limitations
 
@@ -181,3 +181,6 @@ clearly than without types.
 * Depends on Shapeless
 
 ## in short
+
+TODO summarize, emphasize it's mostly an interesting experiment, not really something
+I'd use in production.
