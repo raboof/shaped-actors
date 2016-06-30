@@ -25,7 +25,7 @@ message.
 Unfortunately, the 'ask' signature looks like this (simplified):
 
 ```
-    def ask(message: Any): Future[Any]
+def ask(message: Any): Future[Any]
 ```
 
 The 'contract' between the actor and the outside world is entirely implicit.
@@ -45,15 +45,15 @@ To allow actors to respond to different kinds of commands with different kinds o
 responses, I compose these functions together in an HList:
 
 ```
-    type Shape = (Greet => Future[Greeted]) :: (Goodbye.type => Unit) :: HNil
+type Shape = (Greet => Future[Greeted]) :: (Goodbye.type => Unit) :: HNil
 ```
 
 Then I can define an actor that has this shape by mixing in the `Shape` trait:
 
 ```
-  class HelloWorld extends Actor with Shaped[HelloWorld.Shape] {
-    ...
-  }
+class HelloWorld extends Actor with Shaped[HelloWorld.Shape] {
+  ...
+}
 ```
 
 This introduces some useful helper functions to make sure the implementation
@@ -63,10 +63,10 @@ To get an `ActorRef` that is aware of the shape of the actor and thus can expose
 more conveniently typed `tell` and `ask` patterns, we introduce the `ShapedRef`:
 
 ```
-  val actor = ShapedRef.actorOf(new HelloWorld)
+val actor = ShapedRef.actorOf(new HelloWorld)
 
-  val response: Future[HelloWorld.Greeted] = actor.ask(HelloWorld.Greet("Peter"))
-  Await.result(response, 1 second) should be(HelloWorld.Greeted("Peter"))
+val response: Future[HelloWorld.Greeted] = actor.ask(HelloWorld.Greet("Peter"))
+Await.result(response, 1 second) should be(HelloWorld.Greeted("Peter"))
 ```
 
 ## examples
@@ -78,36 +78,36 @@ GreetingActor. It simply writes some log messages whenever it receives a `Greeti
 or `Goodbye` message. As it does not send any responses, the shape looks like this:
 
 ```
-    type Shape = (Greeting => Unit) :: (Goodbye.type => Unit) :: HNil
+type Shape = (Greeting => Unit) :: (Goodbye.type => Unit) :: HNil
 ```
 
 The actor, save its actual behavior, now looks like:
 
 ```
-    object GreetingActor {
-      case class Greeting(from: String)
-      case object Goodbye
+object GreetingActor {
+  case class Greeting(from: String)
+  case object Goodbye
 
-      type Shape = (Greeting => Unit) :: (Goodbye.type => Unit) :: HNil
-    }
-    class GreetingActor extends Actor
-        with Shaped[GreetingActor.Shape]
-        with ActorLogging {
-      import GreetingActor._
+  type Shape = (Greeting => Unit) :: (Goodbye.type => Unit) :: HNil
+}
+class GreetingActor extends Actor
+    with Shaped[GreetingActor.Shape]
+    with ActorLogging {
+  import GreetingActor._
 
-      override def receive = ???
-    }
+  override def receive = ???
+}
 ```
 
 Because of the shape, as a consumer we now have access to a `tell` function
 that will accept any messages that are part of the shape, but not others:
 
 ```
-    val actor = ShapedRef.actorOf(new GreetingActor)
-    actor.tell(GreetingActor.Greeting("Peter"))
-    actor.tell(GreetingActor.Goodbye)
+val actor = ShapedRef.actorOf(new GreetingActor)
+actor.tell(GreetingActor.Greeting("Peter"))
+actor.tell(GreetingActor.Goodbye)
 
-    actor.tell("Something else") // compiler error
+actor.tell("Something else") // compiler error
 ```
 
 The implementation can consist of a couple of Scala functions that are of
@@ -115,11 +115,11 @@ the types in the shape. We'll get a compiler error if we forget any or write
 functions of unexpected types:
 
 ```
-  override def receive =
-    ((greeting: Greeting) =>
-      log.info(s"I was greeted by ${greeting.from}.")) ::
-    ((_: Goodbye.type) =>
-      log.info("Someone said goodbye to me.")) :: HNil
+override def receive =
+  ((greeting: Greeting) =>
+    log.info(s"I was greeted by ${greeting.from}.")) ::
+  ((_: Goodbye.type) =>
+    log.info("Someone said goodbye to me.")) :: HNil
 ```
 
 * View the actor code [src/test/scala/greeting/GreetingActor.scala](here)
