@@ -11,7 +11,7 @@ import akka.actor.{ Actor, ActorRef, Props, ActorRefFactory }
 import akka.pattern.{ ask, AskableActorRef }
 import akka.util.Timeout
 
-class ShapedRef[L <: HList](ref: ActorRef) {
+class ShapedRef[L <: HList](val ref: ActorRef) {
   import ShapedRef._
 
   def ask[I, O](in: I)(implicit timeout: Timeout, sender: ActorRef, witness: ShapeWitness[L, I, O]): O = {
@@ -21,11 +21,13 @@ class ShapedRef[L <: HList](ref: ActorRef) {
 
   def tell[I](in: I)(implicit sender: ActorRef, witness: ShapeWitness[L, I, Unit]): Unit = ref ! in
 
-  def retryAfter[I, O](in: I, future: Future[_])(implicit timeout: Timeout, sender: ActorRef, witness: ShapeWitness[L, I, O], ec: ExecutionContext): O = {
+  /**
+   * After this future returns, put the result in our own mailbox, followed by the message
+   */
+  def retryAfter[I, O](future: Future[_], message: I)(implicit timeout: Timeout, sender: ActorRef, witness: ShapeWitness[L, I, O], ec: ExecutionContext): O = {
     future.flatMap { value =>
       ref ! value
-      val askable: AskableActorRef = ref;
-      askable.ask(in).asInstanceOf[Future[_]]
+      ask(message).asInstanceOf[Future[_]]
     }.asInstanceOf[O]
   }
 

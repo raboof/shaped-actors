@@ -42,8 +42,8 @@ class Initializing extends Actor with Shaped[Initializing.Shape] {
   val triggerGeneratingToken: Receive =
     ((command: PerformTask) => {
       shapedSelf.retryAfter(
-        command,
-        tokenProvider.ask(TokenProvider.GenerateToken)
+        tokenProvider.ask(TokenProvider.GenerateToken),
+        command
       )
     }) :: HNil
 
